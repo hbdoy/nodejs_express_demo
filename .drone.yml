@@ -1,0 +1,20 @@
+kind: pipeline
+name: default
+
+steps:
+- name: install
+  image: node:8.6.0
+  commands:
+    - node -v
+    - npm -v
+    - npm install
+
+- name: test
+  image: node:8.6.0
+  commands:
+    - npm run test
+
+- name: lint
+  image: node:8.6.0
+  commands:
+    - npm run lint
