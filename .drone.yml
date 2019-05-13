@@ -18,3 +18,25 @@ steps:
   image: node:8.6.0
   commands:
     - npm run lint
+
+- name: scp
+  image: appleboy/drone-scp
+  settings:
+    host:
+      from_secret: server_ip
+    username:
+      from_secret: server_user
+    password:
+      from_secret: server_pass
+    port:
+      from_secret: server_port
+    command_timeout: 2m
+    rm: true
+    target: ~/drone/${DRONE_REPO}
+    source:
+      - "*.js"
+      - Dockerfile
+      - package*.json
+      - node_modules
+    when:
+      branch: master
