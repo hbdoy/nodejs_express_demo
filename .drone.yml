@@ -2,6 +2,16 @@ kind: pipeline
 name: default
 
 steps:
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /tmp/cache
+  settings:
+    restore: true
+    mount:
+    - ./node_modules
+
 - name: install
   image: node:8.6.0
   commands:
@@ -62,3 +72,20 @@ steps:
         docker run -d --name express -p 8081:3000 hbdoy/express
     when:
       branch: master
+
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /tmp/cache
+  settings:
+    rebuild: true
+    mount:
+    - ./node_modules
+  when:
+    branch: master
+
+volumes:
+  - name: cache
+    host:
+      path: /var/lib/drone
