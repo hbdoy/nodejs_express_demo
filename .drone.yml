@@ -40,3 +40,25 @@ steps:
       - node_modules
     when:
       branch: master
+
+- name: deploy
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: server_ip
+    username:
+      from_secret: server_user
+    password:
+      from_secret: server_pass
+    port:
+      from_secret: server_port
+    command_timeout: 2m
+    script:
+      - rm -rf ~/docker/${DRONE_REPO} && mkdir -p ~/docker/${DRONE_REPO}
+      - cp -r ~/drone/${DRONE_REPO}/* ~/docker/${DRONE_REPO}/
+      - cd ~/docker/${DRONE_REPO} &&
+        docker build -t hbdoy/express . &&
+        if [ ! -z $(docker container ls -qaf name=express) ]; then docker container stop $(docker container ls -qaf name=express); docker container rm $(docker container ls -qaf name=express); fi &&
+        docker run -d --name express -p 8081:3000 hbdoy/express
+    when:
+      branch: master
